@@ -80,7 +80,9 @@ nav button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 #sections{display:flex;flex-direction:column;gap:16px}
 .editing h2 input,.editing li.task input[type=text]{flex:1;font:inherit;background:none;border:0;border-bottom:1px solid var(--line);color:var(--fg);padding:2px 0;min-width:0}
 .editing h2 input{font-family:var(--font-head);font-weight:700;font-size:15px}
-.editing h2 input.time{flex:0 0 72px;text-align:right;font-family:var(--font-body);font-weight:500;font-size:12px;color:var(--muted)}
+.editing h2{gap:4px}
+.icon:disabled{opacity:.3;cursor:default}
+.editing h2 input.time{flex:0 0 56px;text-align:right;font-family:var(--font-body);font-weight:500;font-size:12px;color:var(--muted)}
 .icon{background:none;border:0;color:var(--muted);font:inherit;font-size:18px;line-height:1;padding:2px 6px;cursor:pointer;flex:none}
 .icon:hover{color:var(--warn)}
 .icon.up:hover,.icon.down:hover{color:var(--accent)}
@@ -199,8 +201,10 @@ nav button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
       if(editing){
         var ti=el('input');ti.value=sec.t;ti.placeholder='Section name';ti.id='sec'+si;ti.addEventListener('input',function(){sec.t=ti.value});
         var wi=el('input','time');wi.value=sec.w;wi.placeholder='time';wi.id='secw'+si;wi.addEventListener('input',function(){sec.w=wi.value});
+        var sup=el('button','icon up','↑');sup.type='button';sup.title='Move section up';sup.disabled=si===0;sup.addEventListener('click',function(){draft.splice(si-1,0,draft.splice(si,1)[0]);render()});
+        var sdn=el('button','icon down','↓');sdn.type='button';sdn.title='Move section down';sdn.disabled=si===draft.length-1;sdn.addEventListener('click',function(){draft.splice(si+1,0,draft.splice(si,1)[0]);render()});
         var del=el('button','icon','×');del.type='button';del.title='Delete section';del.addEventListener('click',function(){draft.splice(si,1);render()});
-        h2.appendChild(ti);h2.appendChild(wi);h2.appendChild(del);
+        h2.appendChild(ti);h2.appendChild(wi);h2.appendChild(sup);h2.appendChild(sdn);h2.appendChild(del);
       }else{h2.textContent=sec.t;if(sec.w){var sm=el('small',null,sec.w);h2.appendChild(sm)}}
       section.appendChild(h2);
       if(editing){var hp=el('p','hint');var ta=el('textarea');ta.value=sec.h||'';ta.placeholder='Note under this section (optional)';ta.id='sech'+si;ta.addEventListener('input',function(){sec.h=ta.value});hp.appendChild(ta);section.appendChild(hp)}
