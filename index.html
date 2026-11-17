@@ -71,6 +71,22 @@ nav{display:flex;border-top:1px solid var(--line);background:var(--card);padding
 nav button{flex:1;background:none;border:0;padding:12px 4px 10px;font:inherit;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-top:2px solid transparent;margin-top:-1px}
 nav button[aria-selected="true"]{color:var(--accent);border-top-color:var(--accent)}
 nav button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.toolbar{display:flex;align-items:center;gap:12px}
+.toolbar .progress{flex:1}
+.btn{background:var(--card);border:1px solid var(--line);color:var(--fg);border-radius:9px;padding:7px 14px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.editbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+#sections{display:flex;flex-direction:column;gap:16px}
+.editing h2 input,.editing li.task input[type=text]{flex:1;font:inherit;background:none;border:0;border-bottom:1px solid var(--line);color:var(--fg);padding:2px 0;min-width:0}
+.editing h2 input{font-family:var(--font-head);font-weight:700;font-size:15px}
+.editing h2 input.time{flex:0 0 72px;text-align:right;font-family:var(--font-body);font-weight:500;font-size:12px;color:var(--muted)}
+.icon{background:none;border:0;color:var(--muted);font:inherit;font-size:18px;line-height:1;padding:2px 6px;cursor:pointer;flex:none}
+.icon:hover{color:var(--warn)}
+.icon.up:hover,.icon.down:hover{color:var(--accent)}
+.addtask{background:none;border:1px dashed var(--line);color:var(--muted);border-radius:8px;padding:8px;font:inherit;font-size:13px;width:100%;cursor:pointer;margin-top:8px}
+.hint.editable{display:block;width:100%;box-sizing:border-box}
+.editing .hint textarea{width:100%;box-sizing:border-box;font:inherit;font-size:13px;color:var(--muted);background:none;border:1px solid var(--line);border-radius:6px;padding:6px;resize:vertical;min-height:40px}
 .reset{align-self:flex-end;background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
 </style>
@@ -78,74 +94,17 @@ nav button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 <header><h1>Studio Routine</h1><div id="date"></div></header>
 <main>
 <div class="view" id="v-today">
-  <div class="progress"><span id="pct">0 of 0</span><div class="bar"><i id="barfill"></i></div></div>
-
-  <section>
-    <h2>Open the studio <small>7:30</small></h2>
-    <p class="hint">Same order every day so the bench is ready before your brain is.</p>
-    <ul id="open">
-      <li class="task"><input type="checkbox" id="o1"><label for="o1">Ventilation on, didymium glasses on the bench</label></li>
-      <li class="task"><input type="checkbox" id="o2"><label for="o2">Check gas and oxygen levels; open valves, check for leaks<span class="safety">safety</span></label></li>
-      <li class="task"><input type="checkbox" id="o3"><label for="o3">Kiln on, set to annealing temp for today's glass</label></li>
-      <li class="task"><input type="checkbox" id="o4"><label for="o4">Clean bench: clear scraps, wipe down</label></li>
-      <li class="task"><input type="checkbox" id="o5"><label for="o5">Break down glass rods and tubing</label></li>
-      <li class="task"><input type="checkbox" id="o6"><label for="o6">Pull today's custom orders to the front; lay out color</label></li>
-      <li class="task"><input type="checkbox" id="o7"><label for="o7">Water filled; phone on the charger, not the bench</label></li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>Admin window <small>8:00–8:30</small></h2>
-    <ul>
-      <li class="task"><input type="checkbox" id="a1"><label for="a1">Check custom glass messages on Instagram</label></li>
-      <li class="task"><input type="checkbox" id="a2"><label for="a2">Reply to orders; add new ones to the order list</label></li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>Torch <small>8:30–3:30</small></h2>
-    <p class="hint">Work in this order. Paid and promised work before anything speculative.</p>
-    <ol>
-      <li>Custom orders shipping in the next 7 days</li>
-      <li>Other custom orders, oldest first</li>
-      <li>Baggie prep &amp; small world prep (7mm rod)</li>
-      <li>Side ideas: neon, new designs</li>
-    </ol>
-    <p class="hint" style="margin-top:8px">Lunch 12:00–12:30, away from the bench. Side ideas only after one full torch block of order and stock work.</p>
-  </section>
-
-  <section>
-    <h2>Photos &amp; post <small>3:30–4:00</small></h2>
-    <ul>
-      <li class="task"><input type="checkbox" id="p1"><label for="p1">Take pictures of finished work</label></li>
-      <li class="task"><input type="checkbox" id="p2"><label for="p2">Make or schedule 1–2 posts</label></li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>Close the studio <small>4:00</small></h2>
-    <ul>
-      <li class="task"><input type="checkbox" id="c1"><label for="c1">Torch off; close oxygen and gas tank valves<span class="safety">safety</span></label></li>
-      <li class="task"><input type="checkbox" id="c2"><label for="c2">Bleed the gas lines; gauges read zero<span class="safety">safety</span></label></li>
-      <li class="task"><input type="checkbox" id="c3"><label for="c3">Finished pieces into the kiln on the anneal cycle</label></li>
-      <li class="task"><input type="checkbox" id="c4"><label for="c4">Scrap glass to cullet bin; sharp bits off the floor</label></li>
-      <li class="task"><input type="checkbox" id="c5"><label for="c5">Pack and mail outgoing orders; print labels</label></li>
-      <li class="task"><input type="checkbox" id="c6"><label for="c6">Update order list: shipped / mid-build</label></li>
-      <li class="task"><input type="checkbox" id="c7"><label for="c7">Note what's first on the torch tomorrow</label></li>
-      <li class="task"><input type="checkbox" id="c8"><label for="c8">Ventilation off, lights off, door locked</label></li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>Dinner <small>by 5:30</small></h2>
-    <ul>
-      <li class="task"><input type="checkbox" id="d1"><label for="d1">4:00 — take anything frozen out, preheat oven</label></li>
-      <li class="task"><input type="checkbox" id="d2"><label for="d2">4:45 — start cooking</label></li>
-      <li class="task"><input type="checkbox" id="d3"><label for="d3">5:30 — dinner on the table</label></li>
-    </ul>
-  </section>
-
-  <button class="reset" id="reset" type="button">Reset today</button>
+  <div class="toolbar">
+    <div class="progress"><span id="pct">0 of 0</span><div class="bar"><i id="barfill"></i></div></div>
+    <button class="btn" id="editbtn" type="button">Edit</button>
+  </div>
+  <div id="sections"></div>
+  <div class="editbar" id="editbar" hidden>
+    <button class="btn" id="addsec" type="button">+ Section</button>
+    <button class="btn" id="restore" type="button">Restore defaults</button>
+    <button class="btn primary" id="savebtn" type="button">Save</button>
+  </div>
+  <button class="reset" id="reset" type="button">Reset today's checks</button>
 </div>
 
 <div class="view" id="v-day" hidden>
@@ -206,15 +165,81 @@ nav button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
   var days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   document.getElementById('date').textContent=days[now.getDay()]+' '+now.toLocaleDateString(undefined,{month:'short',day:'numeric'});
 
-  // Daily checklist, keyed by date so it resets every morning
-  var boxes=Array.prototype.slice.call(document.querySelectorAll('#v-today input[type=checkbox]'));
+  // Routine data: sections of tasks, editable and saved on this device
+  var DEFAULTS=[
+    {t:'Open the studio',w:'7:30',h:'Same order every day so the bench is ready before your brain is.',items:[
+      {x:'Ventilation on, didymium glasses on the bench'},{x:'Check gas and oxygen levels; open valves, check for leaks',s:1},{x:"Kiln on, set to annealing temp for today's glass"},{x:'Clean bench: clear scraps, wipe down'},{x:'Break down glass rods and tubing'},{x:"Pull today's custom orders to the front; lay out color"},{x:'Water filled; phone on the charger, not the bench'}]},
+    {t:'Admin window',w:'8:00–8:30',h:'',items:[{x:'Check custom glass messages on Instagram'},{x:'Reply to orders; add new ones to the order list'}]},
+    {t:'Torch',w:'8:30–3:30',h:'Order of work: 1) custom orders shipping in 7 days, 2) other custom orders, 3) baggie & small world prep (7mm rod), 4) side ideas: neon, new designs. Lunch 12:00–12:30 away from the bench.',items:[{x:'Custom orders'},{x:'Baggie prep'},{x:'Small world prep (7mm rod)'},{x:'Side ideas (only after a full block of order/stock work)'}]},
+    {t:'Photos & post',w:'3:30–4:00',h:'',items:[{x:'Take pictures of finished work'},{x:'Make or schedule 1–2 posts'}]},
+    {t:'Close the studio',w:'4:00',h:'',items:[
+      {x:'Torch off; close oxygen and gas tank valves',s:1},{x:'Bleed the gas lines; gauges read zero',s:1},{x:'Finished pieces into the kiln on the anneal cycle'},{x:'Scrap glass to cullet bin; sharp bits off the floor'},{x:'Pack and mail outgoing orders; print labels'},{x:'Update order list: shipped / mid-build'},{x:"Note what's first on the torch tomorrow"},{x:'Ventilation off, lights off, door locked'}]},
+    {t:'Dinner',w:'by 5:30',h:'',items:[{x:'4:00 — take anything frozen out, preheat oven'},{x:'4:45 — start cooking'},{x:'5:30 — dinner on the table'}]}
+  ];
+  var RK='sr-routine';
+  var routine;try{routine=JSON.parse(store.get(RK)||'null')}catch(e){}
+  if(!routine||!routine.length)routine=JSON.parse(JSON.stringify(DEFAULTS));
+  routine.forEach(function(sec){sec.items.forEach(function(it){if(!it.id)it.id='t'+Math.random().toString(36).slice(2,9)})});
   var key='sr-'+dayKey;
-  var saved={};try{saved=JSON.parse(store.get(key)||'{}')}catch(e){}
-  boxes.forEach(function(b){b.checked=!!saved[b.id];b.addEventListener('change',save)});
-  function save(){var o={};boxes.forEach(function(b){if(b.checked)o[b.id]=1});store.set(key,JSON.stringify(o));progress()}
-  function progress(){var d=boxes.filter(function(b){return b.checked}).length;document.getElementById('pct').textContent=d+' of '+boxes.length;document.getElementById('barfill').style.width=(100*d/boxes.length)+'%'}
-  progress();
-  document.getElementById('reset').addEventListener('click',function(){boxes.forEach(function(b){b.checked=false});save()});
+  var checks={};try{checks=JSON.parse(store.get(key)||'{}')}catch(e){}
+  var editing=false, draft=null;
+  var secEl=document.getElementById('sections');
+
+  function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+  function saveChecks(){store.set(key,JSON.stringify(checks));progress()}
+  function progress(){var all=[];routine.forEach(function(s){s.items.forEach(function(i){all.push(i.id)})});var d=all.filter(function(id){return checks[id]}).length;document.getElementById('pct').textContent=d+' of '+all.length;document.getElementById('barfill').style.width=(all.length?100*d/all.length:0)+'%'}
+
+  function render(){
+    secEl.innerHTML='';
+    var data=editing?draft:routine;
+    secEl.className=editing?'editing':'';
+    data.forEach(function(sec,si){
+      var section=el('section');
+      var h2=el('h2');
+      if(editing){
+        var ti=el('input');ti.value=sec.t;ti.placeholder='Section name';ti.id='sec'+si;ti.addEventListener('input',function(){sec.t=ti.value});
+        var wi=el('input','time');wi.value=sec.w;wi.placeholder='time';wi.id='secw'+si;wi.addEventListener('input',function(){sec.w=wi.value});
+        var del=el('button','icon','×');del.type='button';del.title='Delete section';del.addEventListener('click',function(){draft.splice(si,1);render()});
+        h2.appendChild(ti);h2.appendChild(wi);h2.appendChild(del);
+      }else{h2.textContent=sec.t;if(sec.w){var sm=el('small',null,sec.w);h2.appendChild(sm)}}
+      section.appendChild(h2);
+      if(editing){var hp=el('p','hint');var ta=el('textarea');ta.value=sec.h||'';ta.placeholder='Note under this section (optional)';ta.id='sech'+si;ta.addEventListener('input',function(){sec.h=ta.value});hp.appendChild(ta);section.appendChild(hp)}
+      else if(sec.h){section.appendChild(el('p','hint',sec.h))}
+      var ul=el('ul');
+      sec.items.forEach(function(it,ii){
+        var li=el('li','task');
+        if(editing){
+          var inp=el('input');inp.type='text';inp.value=it.x;inp.id='e'+it.id;inp.placeholder='Task';inp.setAttribute('aria-label','Task');inp.addEventListener('input',function(){it.x=inp.value});
+          var up=el('button','icon up','↑');up.type='button';up.title='Move up';up.disabled=ii===0;up.addEventListener('click',function(){sec.items.splice(ii-1,0,sec.items.splice(ii,1)[0]);render()});
+          var dn=el('button','icon down','↓');dn.type='button';dn.title='Move down';dn.disabled=ii===sec.items.length-1;dn.addEventListener('click',function(){sec.items.splice(ii+1,0,sec.items.splice(ii,1)[0]);render()});
+          var rm=el('button','icon','×');rm.type='button';rm.title='Delete task';rm.addEventListener('click',function(){sec.items.splice(ii,1);render()});
+          li.appendChild(inp);li.appendChild(up);li.appendChild(dn);li.appendChild(rm);
+        }else{
+          var cb=el('input');cb.type='checkbox';cb.id=it.id;cb.checked=!!checks[it.id];cb.addEventListener('change',function(){if(cb.checked)checks[it.id]=1;else delete checks[it.id];saveChecks()});
+          var lab=el('label',null,it.x);lab.htmlFor=it.id;if(it.s)lab.appendChild(el('span','safety','safety'));
+          li.appendChild(cb);li.appendChild(lab);
+        }
+        ul.appendChild(li);
+      });
+      section.appendChild(ul);
+      if(editing){var add=el('button','addtask','+ Add task');add.type='button';add.addEventListener('click',function(){sec.items.push({id:'t'+Math.random().toString(36).slice(2,9),x:''});render();var f=document.getElementById('e'+sec.items[sec.items.length-1].id);if(f)f.focus()});section.appendChild(add)}
+      secEl.appendChild(section);
+    });
+    document.getElementById('editbar').hidden=!editing;
+    document.getElementById('reset').hidden=editing;
+    document.getElementById('editbtn').textContent=editing?'Cancel':'Edit';
+    progress();
+  }
+  document.getElementById('editbtn').addEventListener('click',function(){editing=!editing;draft=editing?JSON.parse(JSON.stringify(routine)):null;render()});
+  document.getElementById('savebtn').addEventListener('click',function(){
+    draft.forEach(function(s){s.items=s.items.filter(function(i){return i.x.trim()})});
+    routine=draft.filter(function(s){return s.t.trim()||s.items.length});
+    store.set(RK,JSON.stringify(routine));editing=false;draft=null;render();
+  });
+  document.getElementById('addsec').addEventListener('click',function(){draft.push({t:'',w:'',h:'',items:[]});render();var f=document.getElementById('sec'+(draft.length-1));if(f)f.focus()});
+  document.getElementById('restore').addEventListener('click',function(){draft=JSON.parse(JSON.stringify(DEFAULTS));render()});
+  document.getElementById('reset').addEventListener('click',function(){checks={};saveChecks();render()});
+  render();
 
   // Day schedule with the current block highlighted
   var blocks=[['7:20','Family out the door',440],['7:30','Open the studio',450],['8:00','Admin: messages & orders',480],['8:30','Torch block 1 — custom orders, prep',510],['12:00','Break, away from the bench',720],['12:30','Torch block 2 — finish, then side ideas',750],['3:30','Photos & post',930],['4:00','Close & ship; start dinner prep',960],['4:45','Cook',1045],['5:30','Dinner',1110]];
