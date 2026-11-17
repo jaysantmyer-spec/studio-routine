@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#e8721c">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style>
+<title>Studio Routine</title>
+</head>
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: one-screen phone app, tab bar pinned at bottom, scrolling list above it. Palette from boro glass: cool grey-blue ground, flame amber accent. */
+:root{
+  --bg:#f3f5f7; --card:#ffffff; --fg:#1b2129; --muted:#6a7483; --line:#dde3ea;
+  --accent:#e8721c; --accent-fg:#ffffff; --done:#2f9e6b; --warn:#c9303c;
+  --font-body:"Inter",system-ui,-apple-system,sans-serif;
+  --font-head:"Space Grotesk","Inter",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#14181d; --card:#1e242b; --fg:#eef1f4; --muted:#95a0ad; --line:#2d353e;
+  --accent:#f0863a; --accent-fg:#1b1208; --done:#4cc389; --warn:#e35b66; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#14181d; --card:#1e242b; --fg:#eef1f4; --muted:#95a0ad; --line:#2d353e;
+  --accent:#f0863a; --accent-fg:#1b1208; --done:#4cc389; --warn:#e35b66; color-scheme:dark }
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.45;display:flex;flex-direction:column}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px 8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+h1{font-family:var(--font-head);font-weight:700;font-size:22px;margin:0;letter-spacing:-.01em}
+#date{color:var(--muted);font-size:13px;font-weight:500;white-space:nowrap}
+main{flex:1;overflow-y:auto;padding-block:4px 24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.view{display:flex;flex-direction:column;gap:16px}
+.progress{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.bar{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+h2{font-family:var(--font-head);font-size:15px;font-weight:700;margin:0 0 4px;display:flex;justify-content:space-between;align-items:baseline}
+h2 small{font-family:var(--font-body);font-weight:500;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.hint{color:var(--muted);font-size:13px;margin:0 0 8px}
+ul{list-style:none;margin:0;padding:0}
+li.task{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+li.task:first-child{border-top:0}
+li.task input{appearance:none;-webkit-appearance:none;width:24px;height:24px;flex:none;border:2px solid var(--muted);border-radius:7px;margin:0;display:grid;place-items:center;cursor:pointer}
+li.task input:checked{background:var(--done);border-color:var(--done)}
+li.task input:checked::after{content:"";width:12px;height:7px;border:0 solid #fff;border-width:0 0 3px 3px;transform:translateY(-2px) rotate(-45deg)}
+li.task input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+li.task label{flex:1;cursor:pointer;min-width:0}
+li.task input:checked+label{color:var(--muted);text-decoration:line-through}
+li.task .safety{font-size:11px;font-weight:600;color:var(--warn);text-transform:uppercase;letter-spacing:.06em;margin-left:6px}
+ol{margin:0;padding-left:22px}
+ol li{padding:4px 0}
+.sched{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:14px}
+.sched .t{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap;font-weight:500}
+.sched .now{color:var(--accent);font-weight:600}
+.sched .now+div{font-weight:600}
+.week{display:flex;flex-direction:column;gap:8px}
+.day{display:grid;grid-template-columns:44px 1fr;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.day:first-child{border-top:0}
+.day b{font-family:var(--font-head);color:var(--accent)}
+.day.today b{color:var(--done)}
+.day span{color:var(--muted);font-size:13px}
+.rules li{padding:6px 0;border-top:1px solid var(--line)}
+.rules li:first-child{border-top:0}
+nav{display:flex;border-top:1px solid var(--line);background:var(--card);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+nav button{flex:1;background:none;border:0;padding:12px 4px 10px;font:inherit;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-top:2px solid transparent;margin-top:-1px}
+nav button[aria-selected="true"]{color:var(--accent);border-top-color:var(--accent)}
+nav button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.reset{align-self:flex-end;background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+
+<header><h1>Studio Routine</h1><div id="date"></div></header>
+<main>
+<div class="view" id="v-today">
+  <div class="progress"><span id="pct">0 of 0</span><div class="bar"><i id="barfill"></i></div></div>
+
+  <section>
+    <h2>Open the studio <small>7:30</small></h2>
+    <p class="hint">Same order every day so the bench is ready before your brain is.</p>
+    <ul id="open">
+      <li class="task"><input type="checkbox" id="o1"><label for="o1">Ventilation on, didymium glasses on the bench</label></li>
+      <li class="task"><input type="checkbox" id="o2"><label for="o2">Check gas and oxygen levels; open valves, check for leaks<span class="safety">safety</span></label></li>
+      <li class="task"><input type="checkbox" id="o3"><label for="o3">Kiln on, set to annealing temp for today's glass</label></li>
+      <li class="task"><input type="checkbox" id="o4"><label for="o4">Clean bench: clear scraps, wipe down</label></li>
+      <li class="task"><input type="checkbox" id="o5"><label for="o5">Break down glass rods and tubing</label></li>
+      <li class="task"><input type="checkbox" id="o6"><label for="o6">Pull today's custom orders to the front; lay out color</label></li>
+      <li class="task"><input type="checkbox" id="o7"><label for="o7">Water filled; phone on the charger, not the bench</label></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Admin window <small>8:00–8:30</small></h2>
+    <ul>
+      <li class="task"><input type="checkbox" id="a1"><label for="a1">Check custom glass messages on Instagram</label></li>
+      <li class="task"><input type="checkbox" id="a2"><label for="a2">Reply to orders; add new ones to the order list</label></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Torch <small>8:30–3:30</small></h2>
+    <p class="hint">Work in this order. Paid and promised work before anything speculative.</p>
+    <ol>
+      <li>Custom orders shipping in the next 7 days</li>
+      <li>Other custom orders, oldest first</li>
+      <li>Baggie prep &amp; small world prep (7mm rod)</li>
+      <li>Side ideas: neon, new designs</li>
+    </ol>
+    <p class="hint" style="margin-top:8px">Lunch 12:00–12:30, away from the bench. Side ideas only after one full torch block of order and stock work.</p>
+  </section>
+
+  <section>
+    <h2>Photos &amp; post <small>3:30–4:00</small></h2>
+    <ul>
+      <li class="task"><input type="checkbox" id="p1"><label for="p1">Take pictures of finished work</label></li>
+      <li class="task"><input type="checkbox" id="p2"><label for="p2">Make or schedule 1–2 posts</label></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Close the studio <small>4:00</small></h2>
+    <ul>
+      <li class="task"><input type="checkbox" id="c1"><label for="c1">Torch off; close oxygen and gas tank valves<span class="safety">safety</span></label></li>
+      <li class="task"><input type="checkbox" id="c2"><label for="c2">Bleed the gas lines; gauges read zero<span class="safety">safety</span></label></li>
+      <li class="task"><input type="checkbox" id="c3"><label for="c3">Finished pieces into the kiln on the anneal cycle</label></li>
+      <li class="task"><input type="checkbox" id="c4"><label for="c4">Scrap glass to cullet bin; sharp bits off the floor</label></li>
+      <li class="task"><input type="checkbox" id="c5"><label for="c5">Pack and mail outgoing orders; print labels</label></li>
+      <li class="task"><input type="checkbox" id="c6"><label for="c6">Update order list: shipped / mid-build</label></li>
+      <li class="task"><input type="checkbox" id="c7"><label for="c7">Note what's first on the torch tomorrow</label></li>
+      <li class="task"><input type="checkbox" id="c8"><label for="c8">Ventilation off, lights off, door locked</label></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Dinner <small>by 5:30</small></h2>
+    <ul>
+      <li class="task"><input type="checkbox" id="d1"><label for="d1">4:00 — take anything frozen out, preheat oven</label></li>
+      <li class="task"><input type="checkbox" id="d2"><label for="d2">4:45 — start cooking</label></li>
+      <li class="task"><input type="checkbox" id="d3"><label for="d3">5:30 — dinner on the table</label></li>
+    </ul>
+  </section>
+
+  <button class="reset" id="reset" type="button">Reset today</button>
+</div>
+
+<div class="view" id="v-day" hidden>
+  <section>
+    <h2>Studio day <small>Wed–Fri</small></h2>
+    <div class="sched" id="sched"></div>
+    <p class="hint" style="margin-top:10px">If a block runs long, side ideas give way. Never the close checklist, never dinner.</p>
+  </section>
+</div>
+
+<div class="view" id="v-week" hidden>
+  <section>
+    <h2>Week</h2>
+    <p class="hint">Each chore has one home day. Ship Wednesdays and Fridays and you can tell customers that and mean it.</p>
+    <div class="week" id="week"></div>
+  </section>
+  <section>
+    <h2>Monthly, one Friday afternoon</h2>
+    <ul class="rules">
+      <li>Inventory rod and tubing; order glass</li>
+      <li>Restock shipping supplies</li>
+      <li>Look at what sold best; point stock days at it</li>
+    </ul>
+  </section>
+</div>
+
+<div class="view" id="v-dinner" hidden>
+  <section>
+    <h2>Dinner by 5:30</h2>
+    <p class="hint">A 45-minute cook starts at 4:45, so the decision can't happen at 4:45. Make it Sunday.</p>
+    <ul class="rules">
+      <li>Sunday: pick five dinners, shop once. A rotation of 8–10 meals is plenty.</li>
+      <li>Weeknights are 30–40 minute meals: sheet-pan, one-pot, stir-fry, pasta, tacos.</li>
+      <li>Two nights a week cook double; eat it again two days later.</li>
+      <li>Keep a freezer backstop (soup, a sauce, dumplings) for the day the torch runs late.</li>
+      <li>Phone alarms: 4:30 "close studio", 4:45 "start dinner". The alarms remember so you don't have to.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>This week's five</h2>
+    <p class="hint">Tap to edit. Saved on this phone.</p>
+    <ul id="meals"></ul>
+  </section>
+</div>
+</main>
+<nav role="tablist">
+  <button role="tab" data-v="today" aria-selected="true">Today</button>
+  <button role="tab" data-v="day">Day</button>
+  <button role="tab" data-v="week">Week</button>
+  <button role="tab" data-v="dinner">Dinner</button>
+</nav>
+
+<script>
+(function(){
+  var store={get:function(k){try{return localStorage.getItem(k)}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+  var now=new Date();
+  var dayKey=now.toISOString().slice(0,10);
+  var days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  document.getElementById('date').textContent=days[now.getDay()]+' '+now.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+
+  // Daily checklist, keyed by date so it resets every morning
+  var boxes=Array.prototype.slice.call(document.querySelectorAll('#v-today input[type=checkbox]'));
+  var key='sr-'+dayKey;
+  var saved={};try{saved=JSON.parse(store.get(key)||'{}')}catch(e){}
+  boxes.forEach(function(b){b.checked=!!saved[b.id];b.addEventListener('change',save)});
+  function save(){var o={};boxes.forEach(function(b){if(b.checked)o[b.id]=1});store.set(key,JSON.stringify(o));progress()}
+  function progress(){var d=boxes.filter(function(b){return b.checked}).length;document.getElementById('pct').textContent=d+' of '+boxes.length;document.getElementById('barfill').style.width=(100*d/boxes.length)+'%'}
+  progress();
+  document.getElementById('reset').addEventListener('click',function(){boxes.forEach(function(b){b.checked=false});save()});
+
+  // Day schedule with the current block highlighted
+  var blocks=[['7:20','Family out the door',440],['7:30','Open the studio',450],['8:00','Admin: messages & orders',480],['8:30','Torch block 1 — custom orders, prep',510],['12:00','Break, away from the bench',720],['12:30','Torch block 2 — finish, then side ideas',750],['3:30','Photos & post',930],['4:00','Close & ship; start dinner prep',960],['4:45','Cook',1045],['5:30','Dinner',1110]];
+  var mins=now.getHours()*60+now.getMinutes(),cur=-1;
+  blocks.forEach(function(b,i){if(mins>=b[2])cur=i});
+  var sh=document.getElementById('sched');
+  blocks.forEach(function(b,i){var t=document.createElement('div');t.className='t'+(i===cur?' now':'');t.textContent=b[0];var d=document.createElement('div');d.textContent=b[1];sh.appendChild(t);sh.appendChild(d)});
+
+  // Week
+  var week=[['Mon','Family / light studio','Short torch session during naps; answer messages.'],['Tue','Family / light studio','Plan the week\'s orders; order glass and supplies.'],['Wed','Full studio · ship day','Custom orders.'],['Thu','Full studio · stock day','Baggie and small world prep. Batch photos.'],['Fri','Full studio · ship day','Side ideas and neon once orders are done. Deep clean.'],['Sat','Family','Off the torch unless a deadline forces it.'],['Sun','Family + 30 min planning','Order list, next week, Monday\'s first piece, pick the five dinners.']];
+  var wk=document.getElementById('week');
+  week.forEach(function(w,i){var row=document.createElement('div');row.className='day'+(((i+1)%7)===now.getDay()?' today':'');row.innerHTML='<b></b><div><div></div><span></span></div>';row.querySelector('b').textContent=w[0];row.querySelector('div div').textContent=w[1];row.querySelector('span').textContent=w[2];wk.appendChild(row)});
+
+  // Editable meal plan
+  var mealsEl=document.getElementById('meals');var mk='sr-meals';
+  var meals;try{meals=JSON.parse(store.get(mk)||'null')}catch(e){}
+  if(!meals)meals=['Sheet-pan chicken & veg','Tacos','Pasta with sauce from the freezer','Stir-fry','Leftovers night'];
+  meals.forEach(function(m,i){var li=document.createElement('li');li.className='task';var inp=document.createElement('input');inp.type='text';inp.id='meal'+i;inp.value=m;inp.setAttribute('aria-label','Dinner '+(i+1));inp.style.cssText='flex:1;font:inherit;background:none;border:0;border-bottom:1px solid var(--line);color:var(--fg);padding:4px 0;min-width:0';inp.addEventListener('input',function(){meals[i]=inp.value;store.set(mk,JSON.stringify(meals))});var n=document.createElement('span');n.textContent=['Mon','Tue','Wed','Thu','Fri'][i];n.style.cssText='width:36px;color:var(--muted);font-size:13px;font-weight:500;padding-top:6px';li.appendChild(n);li.appendChild(inp);mealsEl.appendChild(li)});
+
+  // Tabs
+  var tabs=document.querySelectorAll('nav button');
+  function show(v){tabs.forEach(function(t){t.setAttribute('aria-selected',t.dataset.v===v)});['today','day','week','dinner'].forEach(function(id){document.getElementById('v-'+id).hidden=id!==v});document.querySelector('main').scrollTop=0;store.set('sr-tab',v)}
+  tabs.forEach(function(t){t.addEventListener('click',function(){show(t.dataset.v)})});
+  show(store.get('sr-tab')||'today');
+})();
+</script>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){})}</script>
+</body></html>
