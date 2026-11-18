@@ -88,6 +88,9 @@ nav button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .icon{background:none;border:0;color:var(--muted);font:inherit;font-size:18px;line-height:1;padding:2px 6px;cursor:pointer;flex:none}
 .icon:hover{color:var(--warn)}
 .icon.up:hover,.icon.down:hover{color:var(--accent)}
+.icon.drag{cursor:grab;touch-action:none}
+.icon.drag:active{cursor:grabbing}
+section.dragging{opacity:.65;box-shadow:0 8px 24px rgba(0,0,0,.18);position:relative;z-index:2}
 .addtask{background:none;border:1px dashed var(--line);color:var(--muted);border-radius:8px;padding:8px;font:inherit;font-size:13px;width:100%;cursor:pointer;margin-top:8px}
 .hint.editable{display:block;width:100%;box-sizing:border-box}
 .editing .hint textarea{width:100%;box-sizing:border-box;font:inherit;font-size:13px;color:var(--muted);background:none;border:1px solid var(--line);border-radius:6px;padding:6px;resize:vertical;min-height:40px}
@@ -193,20 +196,56 @@ nav button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
   function saveChecks(){store.set(key,JSON.stringify(checks));progress()}
   function progress(){var all=[];routine.forEach(function(s){s.items.forEach(function(i){all.push(i.id)})});var d=all.filter(function(id){return checks[id]}).length;document.getElementById('pct').textContent=d+' of '+all.length;document.getElementById('barfill').style.width=(all.length?100*d/all.length:0)+'%'}
 
+  var dragEl=null;
+  function getDragAfterElement(container,y){
+    var els=[].slice.call(container.querySelectorAll('section:not(.dragging)'));
+    var closest={offset:-Infinity,element:null};
+    els.forEach(function(child){
+      var box=child.getBoundingClientRect();
+      var offset=y-box.top-box.height/2;
+      if(offset<0&&offset>closest.offset){closest={offset:offset,element:child}}
+    });
+    return closest.element;
+  }
+  function startSectionDrag(e,section){
+    if(!editing)return;
+    e.preventDefault();
+    dragEl=section;section.classList.add('dragging');
+    try{e.target.setPointerCapture(e.pointerId)}catch(_){}
+    function move(ev){
+      ev.preventDefault();
+      var after=getDragAfterElement(secEl,ev.clientY);
+      if(after==null){if(secEl.lastChild!==dragEl)secEl.appendChild(dragEl)}
+      else if(after!==dragEl){secEl.insertBefore(dragEl,after)}
+    }
+    function up(){
+      section.classList.remove('dragging');
+      document.removeEventListener('pointermove',move);
+      document.removeEventListener('pointerup',up);
+      document.removeEventListener('pointercancel',up);
+      dragEl=null;
+      draft=[].slice.call(secEl.children).map(function(c){return c._sec});
+      render();
+    }
+    document.addEventListener('pointermove',move);
+    document.addEventListener('pointerup',up);
+    document.addEventListener('pointercancel',up);
+  }
   function render(){
     secEl.innerHTML='';
     var data=editing?draft:routine;
     secEl.className=editing?'editing':'';
     data.forEach(function(sec,si){
-      var section=el('section');
+      var section=el('section');section._sec=sec;
       var h2=el('h2');
       if(editing){
+        var dh=el('button','icon drag','⠿');dh.type='button';dh.title='Drag to reorder section';dh.setAttribute('aria-label','Drag to reorder section');dh.addEventListener('pointerdown',function(e){startSectionDrag(e,section)});
         var ti=el('input');ti.value=sec.t;ti.placeholder='Section name';ti.id='sec'+si;ti.addEventListener('input',function(){sec.t=ti.value});
         var wi=el('input','time');wi.value=sec.w;wi.placeholder='time';wi.id='secw'+si;wi.addEventListener('input',function(){sec.w=wi.value});
         var sup=el('button','icon up','↑');sup.type='button';sup.title='Move section up';sup.disabled=si===0;sup.addEventListener('click',function(){draft.splice(si-1,0,draft.splice(si,1)[0]);render()});
         var sdn=el('button','icon down','↓');sdn.type='button';sdn.title='Move section down';sdn.disabled=si===draft.length-1;sdn.addEventListener('click',function(){draft.splice(si+1,0,draft.splice(si,1)[0]);render()});
         var del=el('button','icon','×');del.type='button';del.title='Delete section';del.addEventListener('click',function(){draft.splice(si,1);render()});
-        h2.appendChild(ti);h2.appendChild(wi);h2.appendChild(sup);h2.appendChild(sdn);h2.appendChild(del);
+        h2.appendChild(dh);h2.appendChild(ti);h2.appendChild(wi);h2.appendChild(sup);h2.appendChild(sdn);h2.appendChild(del);
       }else{h2.textContent=sec.t;if(sec.w){var sm=el('small',null,sec.w);h2.appendChild(sm)}}
       section.appendChild(h2);
       if(editing){var hp=el('p','hint');var ta=el('textarea');ta.value=sec.h||'';ta.placeholder='Note under this section (optional)';ta.id='sech'+si;ta.addEventListener('input',function(){sec.h=ta.value});hp.appendChild(ta);section.appendChild(hp)}
